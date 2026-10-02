@@ -96,10 +96,13 @@ def main():
     n, sets = base["n"], [int(s) for s in base["sets"]]
     print("n", n, "|B|", len(sets), "distinct", len(set(sets)),
           "max mask ok", max(sets) < (1 << n), "sizes", sorted({bin(s).count('1') for s in sets}))
-    print("Sperner violations", sperner_violations(sets))
+    sv = sperner_violations(sets)
+    print("Sperner violations", sv)
     t1 = sunflowers_t1(sets, n)
     print("T1 sunflowers found", t1)
-    print("T2", sunflowers_t2(sets))
+    t2 = sunflowers_t2(sets)
+    print("T2", t2)
+    bad = bool(sv) or bool(t1) or "triples=0" not in str(t2).split()   # fail closed (v1.1)
     M, tr, det, rho, rate = chain_rate(sets, n, w["u"], w["v"])
     print("M", M, "tr", tr, "det", det)
     print("rho", mpmath.nstr(rho, 30))
@@ -131,6 +134,9 @@ def main():
         print("PLANT T2", sunflowers_t2(plant))
         plant2 = sets + [sets[0] | (full ^ sets[0]) & -((full ^ sets[0])) ]
         print("PLANT containment Sperner viol", sperner_violations(plant2))
+    if bad:
+        print("RECHECK: FAIL"); sys.exit(1)
+    print("RECHECK: OK")
 
 
 if __name__ == "__main__":
